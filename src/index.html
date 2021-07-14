@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title >CPP-IDE-TEST</title>
+    <style>
+        body
+        {
+           font-family: 'Courier New', Courier, monospace; 
+           background-color: #0f0f0f;
+        }
+        p
+        {
+            color: white;
+        }
+        textarea
+        {
+            background-color: #141414;
+            color: white;
+            font-size: large;
+            tab-size: 4;
+        }
+        
+    </style>
+</head>
+<body>
+    <div>
+        <p>Edit Code:</p>
+        <textarea name="field" id="edit" cols="75" rows="14" style="resize: none;"></textarea>
+    </div>
+    <div>
+        <p>Output:</p>
+        <textarea name="field" id="out" cols="75" rows="8" 
+        style="resize: none;" readonly></textarea>
+    </div>
+    <div>
+        <button id = "run" onclick="runcode();">RUN CODE</button>
+        <select name="lang" id="lang">
+            <option value="cpp">C++</option>
+            <option value="py">PYTHON</option>
+        </select>
+        <button onclick="document.getElementById('getFile').click()">Select File</button>
+        <input type='file' id="getFile" style="display:none">
+    </div>
+<script>
+    const edit = document.getElementById('edit');
+    const output = document.getElementById('out');
+    const lang = document.getElementById('lang');
+    const file = document.getElementById('getFile');
+
+    const {ipcRenderer} = require('electron');
+
+
+    runcode = () => {
+        if(file.files[0]) ipcRenderer.send("run", lang.value + "@" + 
+            file.files[0].path + '$$$' + edit.value);
+    };
+    ipcRenderer.on('output', (event, msg) => output.value = msg);
+
+    edit.addEventListener('keydown', (e)=>{
+        if(e.key == 'Tab')
+        {
+            e.preventDefault();
+            var [start, end] = [edit.selectionStart, edit.selectionEnd];
+            
+            edit.value = `${edit.value.substring(0, start)}\t` + 
+                `${edit.value.substring(end)}`;
+
+            edit.selectionStart = edit.selectionEnd = start + 1;
+        }
+    });
+
+</script>
+</body>
+</html>
